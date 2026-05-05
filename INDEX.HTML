@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spider-Man 2D Web Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      overflow: hidden;
+      background: #87CEEB;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    #ui {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      color: #00ff00;
+      font-family: 'Courier New', monospace;
+      z-index: 100;
+      text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+    }
+
+    .ui-item {
+      margin-bottom: 15px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .bar {
+      width: 200px;
+      height: 20px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 2px solid #00ff00;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00ff00, #00cc00);
+      width: 100%;
+      transition: width 0.3s ease;
+    }
+
+    .bar-fill.low {
+      background: linear-gradient(90deg, #ff0000, #cc0000);
+    }
+
+    #gameOver {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.95);
+      padding: 40px;
+      border: 3px solid #00ff00;
+      border-radius: 10px;
+      text-align: center;
+      color: #00ff00;
+      z-index: 300;
+      display: none;
+      text-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+    }
+
+    #gameOver h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+
+    #gameOver p {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    #gameOver button {
+      padding: 10px 20px;
+      font-size: 18px;
+      background: #00ff00;
+      color: #000;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.3s ease;
+    }
+
+    #gameOver button:hover {
+      background: #00cc00;
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+    }
+
+    #pauseScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      z-index: 250;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #00ff00;
+    }
+
+    #pauseScreen h2 {
+      font-size: 48px;
+      margin-bottom: 20px;
+      text-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+    }
+
+    #startScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #00ff00;
+      z-index: 400;
+    }
+
+    #startScreen h1 {
+      font-size: 64px;
+      margin-bottom: 40px;
+      text-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
+    }
+
+    #startScreen button {
+      padding: 15px 30px;
+      font-size: 24px;
+      background: #00ff00;
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin: 10px;
+      transition: all 0.3s ease;
+    }
+
+    #startScreen button:hover {
+      background: #00cc00;
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+    }
+
+    #instructions {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      color: #00ff00;
+      font-family: 'Courier New', monospace;
+      text-align: right;
+      font-size: 14px;
+      text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+    }
+
+    .instruction-line {
+      margin-bottom: 8px;
+    }
+
+    #rightUI {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      color: #00ff00;
+      font-family: 'Courier New', monospace;
+      text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+      z-index: 100;
+    }
+
+    .right-ui-item {
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+
+    #bossDialog {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 420px;
+      background: rgba(0, 0, 0, 0.9);
+      border: 3px solid #00ff00;
+      border-radius: 14px;
+      z-index: 500;
+      display: none;
+      text-align: center;
+      padding: 24px;
+      box-shadow: 0 0 30px rgba(0, 255, 0, 0.6);
+    }
+
+    #bossDialog .dialog-box {
+      color: #00ff00;
+      font-family: 'Courier New', monospace;
+      font-size: 22px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+
+<div id="startScreen">
+  <h1>SPIDER-MAN 2D</h1>
+  <button id="startButton">START GAME</button>
+</div>
+
+<div id="ui">
+  <div class="ui-item">
+    <span>HP:</span>
+    <div class="bar">
+      <div class="bar-fill" id="healthFill"></div>
+    </div>
+  </div>
+  <div class="ui-item">
+    <span>WEB:</span>
+    <div class="bar">
+      <div class="bar-fill" id="webFill"></div>
+    </div>
+  </div>
+</div>
+
+<div id="rightUI">
+  <div class="right-ui-item">Level: <span id="levelDisplay">1</span></div>
+  <div class="right-ui-item">Enemies: <span id="enemyCount">0</span></div>
+  <div class="right-ui-item">Score: <span id="scoreDisplay">0</span></div>
+</div>
+
+<div id="instructions">
+  <div class="instruction-line">A/D - Move left/right</div>
+  <div class="instruction-line">SPACE - Jump</div>
+  <div class="instruction-line">LEFT CLICK - Punch/Kick Combo</div>
+  <div class="instruction-line">RIGHT CLICK - Web Shoot</div>
+  <div class="instruction-line">P - Pause</div>
+</div>
+
+<div id="pauseScreen">
+  <h2>PAUSED</h2>
+  <p>Press P to resume</p>
+</div>
+
+<div id="bossDialog" class="dialog-overlay" style="display:none;">
+  <div class="dialog-box">
+    <p>With great power comes great responsibility</p>
+  </div>
+</div>
+
+<div id="gameOver">
+  <h1 id="gameOverTitle">GAME OVER</h1>
+  <p id="gameOverText">You were defeated!</p>
+  <p>Final Score: <span id="finalScore">0</span></p>
+  <button onclick="location.reload()">Restart Game</button>
+</div>
+
+<canvas id="gameCanvas"></canvas>
+
+<audio id="bgMusic" src="./spiderman_hindi_song.mp3" loop preload="auto"></audio>
+<audio id="punchSound" src="./universfield-punch-03-352040.mp3" preload="auto"></audio>
+<script type="module" src="./main.js"></script>
+
+</body>
+</html>
